@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  GUEST
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DocumentType {
+  GOVERNMENT_ID
+  CERTIFICATE
+  TRADE_LICENSE
+  POLICE_VERIFICATION
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ComplaintStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id            String     @id @default(uuid())
+  name          String
+  email         String     @unique
+  phone         String?
+  about         String?
+  linkedinUrl   String?    @map("linkedin_url")
+  websiteUrl    String?    @map("website_url")
+  passwordHash  String     @map("password_hash")
+  role          UserRole   @default(CUSTOMER)
+  status        UserStatus @default(ACTIVE)
+  emailVerified Boolean    @default(false) @map("email_verified")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  vendorProfile VendorProfile?
+  bookings      Booking[]      @relation("CustomerBookings")
+  reviews       Review[]
+  complaints    Complaint[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model VendorProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  bio           String?
+  experience    Int      @default(0)
+  rating        Float    @default(0)
+  verified      Boolean  @default(false)
+  workingRadius Int      @default(10) @map("working_radius")
+  profileImage  String?  @map("profile_image")
+  address       String?
+  city          String   @default("Kochi")
+  latitude      Float?
+  longitude     Float?
+  completedJobs Int      @default(0) @map("completed_jobs")
+  vacationMode  Boolean  @default(false) @map("vacation_mode")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services     Service[]
+  bookings     Booking[]      @relation("VendorBookings")
+  documents    Document[]
+  reviews      Review[]
+  workingHours WorkingHours[]
+
+  @@map("vendor_profiles")
+}
+
+model WorkingHours {
+  id        String  @id @default(uuid())
+  vendorId  String  @map("vendor_id")
+  dayOfWeek Int     @map("day_of_week")
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
+  isActive  Boolean @default(true) @map("is_active")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, dayOfWeek])
+  @@map("working_hours")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  icon     String
+  services Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id          String  @id @default(uuid())
+  vendorId    String  @map("vendor_id")
+  categoryId  String  @map("category_id")
+  name        String
+  price       Float
+  duration    Int
+  description String?
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category Category      @relation(fields: [categoryId], references: [id])
+  bookings Booking[]
+
+  @@map("services")
+}
+
+model Booking {
+  id         String        @id @default(uuid())
+  customerId String        @map("customer_id")
+  vendorId   String        @map("vendor_id")
+  serviceId  String        @map("service_id")
+  status     BookingStatus @default(PENDING)
+  date       DateTime
+  time       String
+  proposedDate DateTime?   @map("proposed_date")
+  proposedTime String?     @map("proposed_time")
+  address    String
+  latitude   Float?
+  longitude  Float?
+  notes      String?
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  customer  User          @relation("CustomerBookings", fields: [customerId], references: [id])
+  vendor    VendorProfile @relation("VendorBookings", fields: [vendorId], references: [id])
+  service   Service       @relation(fields: [serviceId], references: [id])
+  review    Review?
+  complaint Complaint?
+
+  @@map("bookings")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  bookingId  String   @unique @map("booking_id")
+  customerId String   @map("customer_id")
+  vendorId   String   @map("vendor_id")
+  rating     Int
+  comment    String?
+  images     String[] @default([])
+  isFlagged  Boolean  @default(false) @map("is_flagged")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  booking  Booking       @relation(fields: [bookingId], references: [id])
+  customer User          @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+
+  @@map("reviews")
+}
+
+model Document {
+  id         String         @id @default(uuid())
+  vendorId   String         @map("vendor_id")
+  type       DocumentType
+  fileUrl    String         @map("file_url")
+  status     DocumentStatus @default(PENDING)
+  verifiedAt DateTime?      @map("verified_at")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  bookingId   String          @unique @map("booking_id")
+  customerId  String          @map("customer_id")
+  description String
+  status      ComplaintStatus @default(OPEN)
+  resolution  String?
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  booking  Booking @relation(fields: [bookingId], references: [id])
+  customer User    @relation(fields: [customerId], references: [id])
+
+  @@map("complaints")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  details   Json?
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}

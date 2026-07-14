@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 29% 97%;
+    --foreground: 217 38% 16%;
+    --primary: 212 84% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 204 46% 92%;
+    --secondary-foreground: 217 38% 16%;
+    --muted: 214 26% 91%;
+    --muted-foreground: 215 18% 36%;
+    --accent: 188 46% 90%;
+    --accent-foreground: 209 55% 20%;
+    --destructive: 2 76% 56%;
+    --border: 212 24% 84%;
+    --ring: 212 84% 42%;
+    --radius: 0.9rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Manrope', system-ui, sans-serif;
+    background-image: radial-gradient(circle at 12% -18%, hsl(212 92% 90% / 0.45), transparent 36%),
+      radial-gradient(circle at 90% -8%, hsl(188 70% 88% / 0.32), transparent 34%),
+      linear-gradient(180deg, hsl(210 30% 98%), hsl(211 28% 96%));
+    min-height: 100svh;
+  }
+
+  ::selection {
+    background: hsl(212 84% 42% / 0.22);
+    color: hsl(217 38% 16%);
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
