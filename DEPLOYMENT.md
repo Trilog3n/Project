@@ -2,9 +2,15 @@
 
 This guide deploys your stack fully on free tiers:
 - API (NestJS): Render Web Service
-- Web (Next.js): Vercel
+- Web (Next.js): Render Web Service
 - Database: Supabase Postgres
 - Source Control: GitHub
+
+## 0) Create Accounts (One-Time)
+1. GitHub account: https://github.com/signup
+2. Render account: https://dashboard.render.com/register
+3. Supabase account: https://supabase.com/dashboard/sign-up
+Use the same GitHub account for Render OAuth so repository access is simple.
 
 ## 1) Push to GitHub
 
@@ -32,7 +38,7 @@ git push -u origin main
 3. Build command:
 
 ```bash
-npm ci && npx prisma generate && npm run build
+npm install && npx prisma generate && npm run build
 ```
 
 4. Start command:
@@ -58,17 +64,28 @@ npx prisma migrate deploy && npm run start:prod
 6. Deploy and verify:
 - `https://<render-service>.onrender.com/api/v1/health`
 
-## 4) Deploy Web to Vercel (Free)
-1. Vercel -> Add New Project -> import the same GitHub repo.
-2. Framework: Next.js
-3. Root Directory: `web`
-4. Environment variable:
-- `NEXT_PUBLIC_API_URL=https://<render-service>.onrender.com`
+## 4) Deploy Web to Render (Free)
+1. Render -> New -> Web Service -> connect your GitHub repo.
+2. Root directory: `web`
+3. Build command:
 
-5. Deploy.
+```bash
+npm install && npm run build
+```
+
+4. Start command:
+
+```bash
+npm run start -- -H 0.0.0.0 -p $PORT
+```
+
+5. Environment variable:
+- `NEXT_PUBLIC_API_URL=https://<your-render-api>.onrender.com`
+
+6. Deploy.
 
 ## 5) Wire CORS and Re-Deploy API
-Set `CORS_ORIGIN` in Render to your actual Vercel URL and redeploy API.
+Set `CORS_ORIGIN` in Render API service to your actual Render web URL and redeploy API.
 
 ## 6) Production Hardening
 - Rotate all secrets after first deploy.
@@ -85,6 +102,19 @@ Set `CORS_ORIGIN` in Render to your actual Vercel URL and redeploy API.
 - Keep uploads small; free disk is limited.
 - Use external object storage later if upload traffic grows.
 
-## 8) Quick Rollback Strategy
+## 8) Blueprint Deploy (Fastest Path)
+This repository already includes `render.yaml` for the API service.
+
+1. Render Dashboard -> New -> Blueprint.
+2. Select your GitHub repo.
+3. Render detects `render.yaml` and creates `diggu-api` and `diggu-web`.
+4. Fill env vars:
+- API: `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `RESEND_API_KEY` (optional), `EMAIL_FROM` (optional)
+- Web: `NEXT_PUBLIC_API_URL=https://<diggu-api>.onrender.com`
+5. Deploy and verify endpoints:
+- API health: `https://<diggu-api>.onrender.com/api/v1/health`
+- Web: `https://<diggu-web>.onrender.com`
+
+## 9) Quick Rollback Strategy
 - Keep tagged releases in GitHub (`v1.0.0`, `v1.0.1`).
-- Redeploy previous commit from Render/Vercel dashboard when needed.
+- Redeploy previous commit from Render dashboard when needed.
