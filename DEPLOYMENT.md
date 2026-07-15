@@ -44,7 +44,7 @@ npm install && npx prisma generate && npm run build
 4. Start command:
 
 ```bash
-npx prisma migrate deploy && npm run start:prod
+npm run start:prod
 ```
 
 5. Add environment variables:
@@ -95,7 +95,9 @@ Set `CORS_ORIGIN` in Render API service to your actual Render web URL and redepl
 - Set dependency update bot (Dependabot/Renovate).
 - Keep Prisma dual URL strategy:
 	- `DATABASE_URL` for runtime traffic
-	- `DIRECT_URL` for migrations (`prisma migrate deploy`)
+	- `DIRECT_URL` for local Prisma admin commands if needed
+
+This repository currently does not include Prisma migration files, so initialize or update schema with `npx prisma db push` from `api/` instead of `prisma migrate deploy`.
 
 ## 7) Operational Notes for Free Tier
 - Render free instances can sleep when idle (cold starts expected).
