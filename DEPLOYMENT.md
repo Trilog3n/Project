@@ -3,7 +3,7 @@
 This guide deploys your stack fully on free tiers:
 - API (NestJS): Render Web Service
 - Web (Next.js): Vercel
-- Database: Neon Postgres
+- Database: Supabase Postgres
 - Source Control: GitHub
 
 ## 1) Push to GitHub
@@ -19,11 +19,12 @@ git remote add origin https://github.com/<your-username>/diggu.git
 git push -u origin main
 ```
 
-## 2) Create Free Postgres (Neon)
-1. Sign in to Neon.
-2. Create a project and database.
-3. Copy connection string.
-4. Ensure SSL mode is enabled in URL (`?sslmode=require`).
+## 2) Use Supabase Postgres
+1. Open your Supabase project and go to Database connection settings.
+2. Copy two URLs:
+- pooled URL for runtime (`DATABASE_URL`, often port 6543)
+- direct URL for migrations (`DIRECT_URL`, typically port 5432)
+3. Ensure SSL mode is enabled in both URLs (`sslmode=require`).
 
 ## 3) Deploy API to Render (Free)
 1. Render -> New -> Web Service -> connect your GitHub repo.
@@ -43,7 +44,8 @@ npx prisma migrate deploy && npm run start:prod
 5. Add environment variables:
 - `NODE_ENV=production`
 - `PORT=10000` (Render injects this automatically, safe to keep)
-- `DATABASE_URL=<neon-url>`
+- `DATABASE_URL=<supabase-pooled-url>`
+- `DIRECT_URL=<supabase-direct-url>`
 - `JWT_SECRET=<long-random-secret>`
 - `JWT_EXPIRES_IN=15m`
 - `CORS_ORIGIN=https://<your-vercel-app>.vercel.app`
@@ -74,6 +76,9 @@ Set `CORS_ORIGIN` in Render to your actual Vercel URL and redeploy API.
 - Require pull requests and CI checks.
 - Add at least one smoke test for `/api/v1/health`.
 - Set dependency update bot (Dependabot/Renovate).
+- Keep Prisma dual URL strategy:
+	- `DATABASE_URL` for runtime traffic
+	- `DIRECT_URL` for migrations (`prisma migrate deploy`)
 
 ## 7) Operational Notes for Free Tier
 - Render free instances can sleep when idle (cold starts expected).

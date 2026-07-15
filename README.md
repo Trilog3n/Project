@@ -50,8 +50,12 @@ Web default: `http://localhost:3000`
 ## Free Deployment (Recommended)
 Use:
 - GitHub for source control
-- Neon (free) for PostgreSQL
+- Supabase (free) for PostgreSQL
 - Render (free tier) for API
 - Vercel (hobby tier) for web
 
 See full guide in `DEPLOYMENT.md`.
+
+For Prisma in production, use two DB URLs:
+- `DATABASE_URL` for runtime app queries (pooled URL is fine)
+- `DIRECT_URL` for migrations (`prisma migrate deploy` direct connection)
