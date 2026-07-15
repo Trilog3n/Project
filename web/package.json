@@ -2,6 +2,9 @@
   "name": "@local-vendor/web",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "set NEXT_DIST_DIR=.next-dev&& set NEXT_DISABLE_WEBPACK_CACHE=1&& set NEXT_DISABLE_DEVTOOLS=1&& next dev --port 3000",
     "dev:clean": "if exist F:\\Diggu\\apps\\web\\.next-dev rmdir /s /q F:\\Diggu\\apps\\web\\.next-dev & npm --prefix F:\\Diggu\\apps\\web run dev",
@@ -10,9 +13,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@local-vendor/config": "*",
-    "@local-vendor/types": "*",
-    "@local-vendor/utils": "*",
     "@hookform/resolvers": "^3.9.1",
     "@tanstack/react-query": "^5.62.8",
     "class-variance-authority": "^0.7.1",
