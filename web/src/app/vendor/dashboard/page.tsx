@@ -70,7 +70,7 @@ export default function VendorDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link href="/vendor/services"><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="p-6"><h3 className="font-semibold">Manage Services</h3><p className="text-sm text-muted-foreground mt-1">Add or edit your services</p></CardContent></Card></Link>
+          <Link href="/vendor/profile#services"><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="p-6"><h3 className="font-semibold">Manage Services</h3><p className="text-sm text-muted-foreground mt-1">Add or edit your services</p></CardContent></Card></Link>
           <Link href="/vendor/documents"><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="p-6"><h3 className="font-semibold">Upload Documents</h3><p className="text-sm text-muted-foreground mt-1">Verification documents</p></CardContent></Card></Link>
           <Link href="/vendor/profile"><Card className="hover:shadow-md transition-shadow cursor-pointer"><CardContent className="p-6"><h3 className="font-semibold">Edit Profile</h3><p className="text-sm text-muted-foreground mt-1">Update your public profile</p></CardContent></Card></Link>
         </div>
