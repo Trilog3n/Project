@@ -17,9 +17,22 @@ async function bootstrap() {
   const allowedOrigins = corsOrigin
     .split(',')
     .map((origin) => origin.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((origin) => origin.replace(/\/+$/, ''));
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow non-browser clients (server-to-server, curl, health checks).
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const normalized = origin.replace(/\/+$/, '');
+      const isConfigured = allowedOrigins.includes(normalized);
+      const isVercelDomain = normalized.endsWith('.vercel.app');
+
+      callback(null, isConfigured || isVercelDomain);
+    },
     credentials: true,
   });
 
