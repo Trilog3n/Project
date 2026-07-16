@@ -70,9 +70,18 @@ export async function api<T>(
     }
   }
 
+  if (res.status === 401) {
+    // Session is no longer valid; clear stale auth cache to avoid repeated unauthorized loops.
+    clearTokens();
+  }
+
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Request failed' }));
-    throw new ApiError(res.status, error.message || 'Request failed');
+    const message =
+      res.status === 401
+        ? 'Session expired. Please sign in again.'
+        : error.message || 'Request failed';
+    throw new ApiError(res.status, message);
   }
 
   if (res.status === 204) return undefined as T;

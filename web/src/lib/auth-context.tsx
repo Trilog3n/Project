@@ -18,16 +18,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [hasToken, setHasToken] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
     const stored = localStorage.getItem('user');
-    if (stored) {
+    if (stored && accessToken) {
       try {
         setUser(JSON.parse(stored));
+        setHasToken(true);
       } catch {
         clearTokens();
+        setHasToken(false);
       }
+    } else {
+      clearTokens();
+      setUser(null);
+      setHasToken(false);
     }
     setLoading(false);
   }, []);
@@ -36,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokens(data.tokens.accessToken, data.tokens.refreshToken);
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
+    setHasToken(true);
     return data.user;
   }, []);
 
@@ -57,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     clearTokens();
     setUser(null);
+    setHasToken(false);
   };
 
   return (
@@ -68,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         registerVendor,
         logout,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && hasToken,
       }}
     >
       {children}
