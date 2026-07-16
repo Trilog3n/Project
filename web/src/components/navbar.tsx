@@ -29,7 +29,7 @@ export function Navbar() {
         ? [
             { href: '/vendor/dashboard', label: 'Dashboard' },
             { href: '/vendor/bookings', label: 'Bookings' },
-            { href: '/vendor/services', label: 'Services' },
+            { href: '/vendor/profile#services', label: 'Services' },
           ]
         : [
             { href: '/dashboard', label: 'Dashboard' },

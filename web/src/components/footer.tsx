@@ -1,7 +1,27 @@
+"use client";
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/lib/config';
 
 export function Footer() {
+  const pathname = usePathname();
+  const isVendorPage = pathname.startsWith('/vendor');
+
+  if (isVendorPage) {
+    return (
+      <footer className="mt-auto border-t border-border/70 bg-background/80">
+        <div className="container mx-auto flex flex-col gap-2 px-4 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>Need help with onboarding? We are here to assist.</p>
+          <div className="flex items-center gap-4">
+            <a href="mailto:support@diggu.in" className="hover:text-foreground">support@diggu.in</a>
+            <a href="tel:+919876543210" className="hover:text-foreground">+91 98765 43210</a>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="mt-auto border-t border-border/80 bg-gradient-to-b from-muted/20 to-muted/40">
       <div className="container mx-auto px-4 py-10 md:py-12">
